@@ -50,6 +50,61 @@ $page = $_GET['page'] ?? '1'; // PHP > 7.0
       * In your php code, use `ob_start()`, which start the buffering (it has to come before anything), and `ob_end_flush()`, which ends buffering and flushes whatever results have accumulated in the buffer (it doesn't have to be called explicitly because the end of php code will automatically do that for you).
       * Which one to use? -> it's a good idea to have both.
 
-#### Build Forms with PHP
+#### Build Forms with PHP (NEEDS TO BE ADDED AGAIN!!!)
 * About checkbox:
    * Good to have a hidden box to send attribute data if users don't check the box.
+   
+#### MySQL Basics
+* Database advantages
+   * Read and write data
+   * Store more data
+   * Keep data organized
+   * Access data faster
+   * Relate data to data
+* Basic MySQL commands (capitalization is not required, but good practice):
+   * `SHOW DATABASES;`
+   * `CREATE DATABASE db_name;`
+   * `USE db_name;`
+   * `DROP DATABASE db_name;`
+   * Create tables:
+   ```
+   CREATE TABLE table_name (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    menu_name VARCHAR(255),
+    position INT(3),
+    visible TINYINT(1),
+    PRIMARY KEY (id)
+   );
+   ```
+* CRUD (Create, Read, Update, and Delete)
+   * SQL SELECT (Read)
+   ```
+   SELECT *
+   FROM table
+   WHERE column1 = "some_text"
+   ORDER BY column1 ASC;
+   ```
+   * SQL INSERT (Create)
+   ```
+   INSERT INTO table (col1, col2, col3)
+   VALUES (val1, val2, val3);
+   ``` 
+   (col and val orders need to match)
+   * SQL UPDATE (Update)
+   ```
+   UPDATE table
+   SET col1 = 'this', col2 = 'that'
+   WHERE id = 1;
+   ```
+   * SQL DELETE (Delete)
+   ```
+   DELETE FROM table
+   WHERE id = 1
+   LIMIT 1;          /*LIMIT only allows 1 record to be deleted, it's a good thing to do*/
+   ```
+* Relational database tables
+   * SQL ADD INDEX (since the pk will automatically be assigned index but fk won't, index is better to be added for fks)
+   ```
+   ALTER TABLE table
+   ADD INDEX index_name (column);
+   ```
