@@ -108,3 +108,51 @@ $page = $_GET['page'] ?? '1'; // PHP > 7.0
    ALTER TABLE table
    ADD INDEX index_name (column);
    ```
+
+#### Use PHP to access MySQL
+* **APT** (Application Programming Interface): a set of functions that define the way we use the software.
+* Database APIs in PHP (int this tutorial, mysqli is used):
+   * **mysql**: original MySQL API
+   * **mysqli**: MySQL "improved" API
+   * **PDO**: PHP Data Objects ([PDO tutorial](https://phpdelusions.net/pdo#dsn))
+   * Differences between three APIs: <img scr="https://github.com/ZR55/PHP-MySQL-Tutorial/blob/master/Ex_Files_PHP_MySQL_EssT_Basics/Notes/Differences_between_mysql_api.png" width="50%"/>
+   * [PHP manual page that helps choosing between different APIs](https://www.php.net/manual/en/mysqlinfo.api.choosing.php)
+* PHP-Database interaction steps (step 1 and 5 should only happen **once** for one PHP script):
+   * Create a database connection
+   ```
+   mysqli_connect($host, $user, $password, $database)
+   ```
+   * Perform a database query
+     `mysqli_query($connection, $query)`
+     `mysqli_free_result($result_set)` (not freeing the result set won't be a big deal when retrieving small amount of data, but it DOES matter when retrieving lots of data)
+   * Use returned data (if any)
+      * `mysqli_fetch_row`: return the result in a simple array. For example: `['1', 'About Global bank', '1', '1']` which is not ideal since it's easy to forget which value belongs to which column
+      * `mysqli_fetch_assoc`: return the result in an associative array that associate the value with the column name. For example, `['id' => '1', 'menu_name' => 'About Global Bank', 'position' => '1', 'visible' => '1']`
+      ```
+      // A better way to loop through the result array.
+   
+      // Traditional way:
+      $result = find_all_subjects();   // "find_all_subjects()" is a query function that retrieves all the rows in subject table
+      $count = mysqli_num_rows($result);
+      for ($i = 0; $i < $count; $i++)
+      {
+          $subject = mysqli_fetch_assoc($result);
+          echo $subject['menu_name'];
+      }
+   
+      // A better way is to use a while loop
+      $result = find_all_subjects();
+      while($subject = mysqli_fetch_assoc($result))
+      {
+          echo $subject['menu_name'];
+      }
+      // Analysis: the while loop doesn't need to figure out the row count.
+      // The while loop condition is doing testing and assignment at the same time. What the condition is saying is that
+      // go and get another row from the result, as long as the assignment returns true, the loop keeps going.
+      ```
+      * `mysqli_fetch_array`
+   * Release returned data
+   * Close the database connection (even though database is automatically closed at the end of php script but it's recommended to write it explicitly)
+   ```
+   mysqli_close($connection)
+   ```
