@@ -115,7 +115,7 @@ $page = $_GET['page'] ?? '1'; // PHP > 7.0
    * **mysql**: original MySQL API
    * **mysqli**: MySQL "improved" API
    * **PDO**: PHP Data Objects ([PDO tutorial](https://phpdelusions.net/pdo#dsn))
-   * Differences between three APIs: <img scr="https://github.com/ZR55/PHP-MySQL-Tutorial/blob/master/Ex_Files_PHP_MySQL_EssT_Basics/Notes/Differences_between_mysql_api.png" width="50%"/>
+   * Differences between three APIs: <img src="https://github.com/ZR55/PHP-MySQL-Tutorial/blob/master/Ex_Files_PHP_MySQL_EssT_Basics/Notes/Differences_between_mysql_api.png" width="50%"/>
    * [PHP manual page that helps choosing between different APIs](https://www.php.net/manual/en/mysqlinfo.api.choosing.php)
 * PHP-Database interaction steps (step 1 and 5 should only happen **once** for one PHP script):
    * Create a database connection
@@ -156,3 +156,10 @@ $page = $_GET['page'] ?? '1'; // PHP > 7.0
    ```
    mysqli_close($connection)
    ```
+* Error handling
+  * Database connection error:
+    * `mysqli_connect_errno()`: "errno" is the short for "error number". This retrieves the error code from last call connect to the database
+    * `mysqli_connect_error()`: returns a string description of that last connect error.
+  * Query error
+
+#### CRUD with PHP
