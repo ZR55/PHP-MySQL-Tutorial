@@ -163,3 +163,10 @@ $page = $_GET['page'] ?? '1'; // PHP > 7.0
   * Query error
 
 #### CRUD with PHP
+* While writing SQL query, it's the best practice to put single quotes around all the variables that you submit to MySQL. For example, 
+```
+$sql = "SELECT * FROM subjects ";   // The space at the end is super important.
+$sql .= "WHERE id='" . $id . "'";  
+```
+* Use form data to create records
+`mysqli_insert_id($connection)`: tells mySQL that you just inserted a new record can you give the id back to me
