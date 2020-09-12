@@ -170,3 +170,8 @@ $sql .= "WHERE id='" . $id . "'";
 ```
 * Use form data to create records
 `mysqli_insert_id($connection)`: tells mySQL that you just inserted a new record can you give the id back to me
+* Use form data to update records
+  * Use UPDATE query
+  * Updating a single record requires PK
+  * Usually from form data (we'll display the data that is already in the database first and then allow users to change the data by submitting the form)
+  * Returns true or false
