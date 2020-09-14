@@ -284,3 +284,52 @@ But what if a hacker typed in `$id="'; INSERT INTO admins (username, password) V
   * Steal data
   * Alter data
   * Destory data
+* Sanitize Data for SQL
+  * Convert characters with meaning in SQL syntax to data
+  * Add a backslash before all single quotes (e.g. `$subject['menu_name'] = "David\'s Story";`
+  * In old PHP, there's a escape configuration called magic quotes that would try to escape these values for you while they are on their way to MySQL. Unfortunately, it created more problems than it solved. So the magic quotas is removed and it's up to us to add escape ourselves. 
+    * `addslashes($string)` takes a string as an argument and it returns a string that adds backslashes in front of all the characters that needs to be escaped ( which including `'`, `"`, `\`, `a special character that represents null`.
+    * `mysqli_real_escape_string($db, $string)`: it does the same thing as `addslashes($string)` and even more. It's part of mysql API and designed especially for MySQL. Besides the characters that are mentioned above, it also escapes line returns and other odd control character that you might not think of. If MySQL API is used, then better off to use `mysql_real_escape_string($connection, $string)` but it's better to change its name.
+* Delimit data values
+  * SQL and Single-Quoted Values
+    * Required for strings, dates, and times
+    * Not required for numbers and booleans
+    * Samll performance penalty to convert to correct type (but you won't notice)
+    * Large security benefit to quoting all values (prevents SQL injection)
+  * Example:
+    * Original SQL query: `$sql = "SELECT * FROM subjects `; $sql .= "WHERE id=" . db_escape($db, $id);`
+    * If a hacker typed in following as id: `$id = "1; DROP TABLE payments";`
+    * Because we don't have single quotes around the $id variable, even though we called escape but there's no special characters to escape, the final SQL query will look like: `SELECT * FROM subjects WHERE id=1; DROP TABLE payments`
+  * Delimit Data Values
+    * The best practice is to **put single quotes around all values** and always **escape** them
+    * Helps prevent SQL injection
+    * Forces attackers to circumvent data delimiters
+* Prepared Statements
+  * The basic idea is you give MySQL a template for a query that you wnat to run and you indicates places that you want to fill in the blanks later.
+  * Example: 
+  ```
+  INSERT INTO subjects
+  (menu_name, position, visible)
+  VALUES
+  (?, ?, ?)   // The question marks indicates the blanks that you want to fill in later.
+  ```
+  * Why?
+    * Prepare statement once and reuse it many times
+    * Can be faster
+    * Separate the query from the dynamic data
+    * Prevent SQL injection
+  * Example on how to use it:
+  ```
+  // The SQL query template:
+  $sql  = "SELECT id, first_name, last_name ";
+  $sql .= "FROM users ";
+  $sql .= "WHERE username = ? AND password = ?";
+  $stmt = mysql_prepare($connection, $sql);   // Prepare the statment that is ready to use
+  
+  // Usage on the template:
+  mysqli_stmt_bind_param($stmt, 'ss', $username, $password);    // 'ss' indicates both parameters are string
+  mysqli_stmt_execute($stmt);
+  mysqli_stmt_bind_result($stmt, $id, $first_name, $last_name);
+  mysqli_stmt_fetch($stmt);
+  mysqli_stmt_close($stmt);
+  ```
