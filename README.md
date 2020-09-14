@@ -175,3 +175,8 @@ $sql .= "WHERE id='" . $id . "'";
   * Updating a single record requires PK
   * Usually from form data (we'll display the data that is already in the database first and then allow users to change the data by submitting the form)
   * Returns true or false
+* Delete a record
+  * Use DELETE query
+  * Deleting a single record requires record id
+  * Form is optional; POST is best practice. (A search engine spider can click on every link you have on the website, but they won't submit any forms)
+  * Returns true or false.
