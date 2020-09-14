@@ -180,3 +180,107 @@ $sql .= "WHERE id='" . $id . "'";
   * Deleting a single record requires record id
   * Form is optional; POST is best practice. (A search engine spider can click on every link you have on the website, but they won't submit any forms)
   * Returns true or false.
+
+#### Common data validation types
+* Validate forms
+  * Do not blindly trust user-provided data.
+  * Applications have data requirements
+  * Code must enforce requirements on user-provided data.
+  * "Validating data", "passing validations"
+* Common data validation types
+  * Presence (data cannot be left blank)
+  * String length
+  * Type
+  * Inclusino in a set
+  * Format (e.g. emails, currency, time...)
+  * Uniqueness (e.g. usernames ...)
+  * [PHP regular expression (preg_match())](http://php.net/manual/en/function.preg-match.php)
+* Validate form values
+  * Validate data before creating and updating records
+  * Same validations are often used for both
+  * Put validation code in a reusable function
+  * If validations fail, create or update is prevented
+  * User needs to know what was wrong so they can fix it.
+  * Keep track of errors and report them
+  * Reporting all errors at once is the best user experience
+  * It's a better idea to let data validation always run instead of run only when user submit the form. (So put the data validtation function inside the query functions)
+* Display validation errors
+  * Repopulate form fields so user can fix them
+  * Can indicate errors as a list (used by this tutorial)
+  * Can indicate errors field-by-field (instead of putting all the error messages in one list, you need to use an associate array. When adding error messages to that array, instead of `$errors[] = "Name can't be blank.";`, array key should be specified like `$errors['menu_name'] = "Name can't be blank.";`
+* Problems with validation logic
+  * Surprisingly True (All of the following will return true)
+    * `0 == FALSE`
+    * `4 == TRUE`
+    * `0 == NULL`
+    * `0 == "0"`
+    * `0 == ""`
+    * `0 == "a"`
+    * `"" == NULL`
+    * `"abc" == TRUE`
+    * `100 == 100.00`
+    * `3 == "3 dogs"`
+    * `"1" == "01"`
+    * `"123" == "     123"`
+    * `"123" == "+0123"`
+    * `100 == "1e2"`
+  * Type juggling during comparisons
+    * When comparing two items with different data types, PHP has to decide how to compare two objects so PHP will make some adjustments.
+    * String vs. null: converts null to ""
+    * Boolean vs. other: converts other to boolean
+    * Number vs. other: converts other to number
+    * `===` allows quality comparison which means exactly the same and the type juggling doesn't take effect
+    ```
+    echo 0 == FALSE ? 'true' : 'false';   // true
+    echo 0 === FALSE ? 'true' : 'false';  // false
+    ```
+  * Surprisingly Empty (Calling empty() on all of the following will return true, those are all considered empty by PHP)
+    * `""`
+    * `0`
+    * `"0"`
+    * `null`
+    * `false`
+    * `array()`
+  * Be careful with basic operators: `<, <=, >, >=`, `&&, ||` (make sure to get those right)
+  * Be careful with regular expressions
+    * Symbolic language is powerful, but easy to make mistakes
+    * Easy to overlook rare cases
+    * ["Learning Regular Expression" taught by the same instructor](https://www.linkedin.com/learning/learning-regular-expressions-2/write-text-matching-patterns?u=76215914)
+* Validation with deleting an item
+  * Not only updating and creating a page require data validation, they are by far the most common use of validation, but validation before deleting also makes sense.
+  * Validate that a subject does not have any pages assigned to it which would become orphaned after the subject is deleted (we can require users to delete pages inside of that subjects or reassign those pages to another object before we allow the subject to be deleted).
+    
+#### Understand SQL injection
+* Example:
+Below is the sql code we have for inserting data
+```
+$sql = "INSERT INTO subjects ";
+$sql .= "(menu_name, position, visible) ";
+$sql .= "VALUES (";
+$sql .= "'" . $subject['menu_name'] . "', ";
+$sql .= "'" . $subject['position'] . "', ";
+$sql .= "'" . $subject['visible'] . "', ";
+$sql .= ")";
+```
+imagine if we are going to insert `$subject['menu_name'] = "Davide's Story"`, we are going to get a sql query like this: `"INSERT INTO subjects (menu_name, position, visible) VALUES ('David's Story', '1', '1')"`
+* Another example:
+The query code we have for selecting a record: `$sql = "SELECT * FROM subjects WHERE id='" . $id . "'";`, and we expect to have `$id="5"`.
+But what if a hacker typed in `$id="'; INSERT INTO admins (username, password) VALUES ('hacker', 'abcd1234'); SELECT * FROM subjects WHERE id='5";`, then the entrie sql query will be like this: `SELECT * FROM subjects WHERE id=''; INSERT INTO admins (username, password) VALUES ('hacker', 'abcd1234'); SELECT * FROM subjects WHERE id='5'`
+* SQL injection
+  * Execute arbitrary SQL requests
+  * Craft string to manipulate SQL syntax and inject code
+  * Any query which uses dynamic-data is vulnerable
+  * URL parameters, form data, cookies, database data
+  * "SQLi" for short
+    * is the single biggest security concern
+    * Ranked #1 security threat by OWASP (Open Web Application Security Project)
+    * Why?
+      * easy for attackers to detect and exploit
+      * Gives access to large amounts of important data
+      * Web applications have high level access
+      * Circumvents normal access controls
+* SQL Injection Uses
+  * Bypass application authentication
+  * Steal data
+  * Alter data
+  * Destory data
