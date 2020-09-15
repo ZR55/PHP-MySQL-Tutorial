@@ -6,6 +6,7 @@ PHP with MySQL Essential Training from LinkedIn Learning
 2. [PHP with MySQL Essential Training: 2 Build a CMS](https://www.linkedin.com/learning/php-with-mysql-essential-training-2-build-a-cms/introduction?u=76215914)
 
 ## Notes
+### Part 1
 #### Build Web Pages with PHP
 * Ternary conjunctions:
 ```
@@ -63,6 +64,8 @@ $page = $_GET['page'] ?? '1'; // PHP > 7.0
    * Relate data to data
 * Basic MySQL commands (capitalization is not required, but good practice):
    * `SHOW DATABASES;`
+   * `SHOW TABLES;`
+   * `SHOW FIELDS FROM table_name;`
    * `CREATE DATABASE db_name;`
    * `USE db_name;`
    * `DROP DATABASE db_name;`
@@ -333,3 +336,91 @@ But what if a hacker typed in `$id="'; INSERT INTO admins (username, password) V
   mysqli_stmt_fetch($stmt);
   mysqli_stmt_close($stmt);
   ```
+
+
+### Part 2
+#### Cookies and Sessions
+* What is cookie? It's a small string of data stored by the user's web browser
+* How it works?
+  * A user's web broswer sends a request to a web server. The request would include a header that indicates the website and the page
+  * Then web server responses back to the browser and sends back a response with a header that can include a directive called set cookie. The data included in the set cookie is waht is going to be sent to the browser and that the web server is saying, "Hey browser, store this data for later"
+  * Then whenever the browser makes another request back to that same web server in the future, it's going to include that cookie data in its request header
+  * It's sent along on every single request, regardless of what page it's for as long as it's for that same website domain.
+  * Summary:
+    * Cookies are stored by website domain (or subdomain)
+    * Cookies are sent with every request to the website
+    * Cookies have a maximum size of 4K (~4000 characters)
+    * Cookies can be viewed, edited, or deleted by the user
+    * Cookies are set and sent in the headers
+    * Headers are sent before **any** page data
+    * Cookies must be set before any output, unless output buffering has been turned on
+  * Cookies are stored in super globals (`$_COOKIE`) just like forms (`$_POST`) and URLs (`$_GET`). It will be key-value pairs that store in an associate array.
+* Set and read cookie values
+  * `setcookie($name, $value, $expire, $path, $domanin, $secure, $httponly);`
+    * `$name`: the name of the cookie
+    * `$value`: the value that you want to assign to that name
+    * `$expire`: the expiration which allows us to control how long these cookies can stick around for. It's always going to be a Unix timestamp that is the numer of seconds since 1970. For example, if we want to set the time 2 weeks from now, we can do `$expires = time() + 60*60*24*14` where `time()` gives us the number of seconds of today from 1970
+    * `$path`: the path to the server to which the cookies's available. For exmaple, we can have a cookie that is only available if our path is in the staff area.
+    * `$domain`: typically it's the entire website, but we can also use it to subdomains
+    * `$secure`: if set to "true", then the cookie will only be trasmitted if there's https secure connection. Otherwise, the cookie won't be transmitted
+    * `$httponly`: it says the cookie should only be sent in the header. In other words, it should not be available to Javascript
+* Unset Cookie Values:
+  * Two ways to delete the cookie
+    * Set value to false: `setcookie($name, false);`
+    * Tell the browser that it expires 1 hour ago: `setcookie($name, $value, (time() - 3600));`
+  * Avoid boolean values when setting cookies
+  * Use "0" for false and "1" for true instead
+  * Cookies can only be deleted with the same options as used for setting the cookies
+* Work with Sessions
+  * Store data in a session file
+  * Store the reference identifier for the session file in a cookie
+  * Retrieval of the session file handled by PHP
+* Benefits of Seesions
+  * More storage
+  * Smaller request sizes
+  * Conceals data values
+  * More secure and less hackable
+* Pitfalls of Sessions
+  * Slower to access
+  * Expire when browser is closed
+  * Accumulate session files
+* Common uses of sessions
+  * Frequently referred to data
+  * User authentication (the tutorial uses)
+  * Storing data during a redirect
+* Starting sessions
+  * Configure sessions in `php.imi` file (go to the [website](http://php.net/manual/en/session.configuration.php))
+  * Can configure session cookie options
+  * Sessions are turned off by default
+  * `session_start($options)`
+* Set and Read session values
+  * `$_SESSION['lang'] = 'English';`
+  * To get it back: `$lang = $_SESSION['lang'];`. But it's a always a good idea to check if it exists or not: `$lang = $_SESSION['lang'] ?? '';`
+  * To unset the session: `unset($_SESSION['lang']);`
+* Application of session
+  * Turn on session in `initailze.php` and add `session_start()`
+
+#### User Authentication Overview
+* User Authentication is Essential
+  * Password-protected areas are common in most web apps
+  * Learning best practices avoids costly mistakes
+  * Development choices and security concerns are intertwined topics
+  * A ticket analogy
+    * Purchase tickets for a concert            => Admin creates a user
+    * Present ID at the gate                    => User logs in via a login form
+    * Get handstamp and enter concert           => User is authenticated and given access
+    * Show handstamp, avoid line, and reenter   => User requests additional password-protected pages
+    * Wash away handstamp                       => User logs out
+  * Process
+    * Admin creates a user in the database
+    * Password MUST be encrypted before user is stored
+    * User logs in via a login form
+    * Application searches for the username in the database
+    * If the username is found, it encrypts the form password and compares it with the **encrypted** stroed password (NOT decrypt the password!)
+    * If the passwords match, then it sets a value in the session to the user ID and redirects to a post-login page
+    * User requests additional password-protected pages
+    * Application checks the session data for the user ID
+      * If present, it returns the requested page
+      * If absent, it redirects to the login form
+    * User logs out
+    * User ID stored in session is removed
