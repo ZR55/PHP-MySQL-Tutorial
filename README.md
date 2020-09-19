@@ -424,3 +424,30 @@ But what if a hacker typed in `$id="'; INSERT INTO admins (username, password) V
       * If absent, it redirects to the login form
     * User logs out
     * User ID stored in session is removed
+* Create admins table
+  ```
+  CREATE TABLE admins (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    email VARCHAR(255),
+    username VARCHAR(255),
+    hashed_password VARCHAR(255),
+    PRIMARY KEY (id)
+  );
+  
+  ALTER TABLE admins ADD INDEX index_username (username);
+  ```
+* PHP password functions
+  * Encrypting passwords
+    * Never store passwords in plain text
+    * Users reuse passwords
+    * Use one-way encryption since same inputs + same hashing algorithm = same output
+    * Encrypts the actual password, and then stores it
+    * Encrypts the attempted password and then compares it to the stored password
+    * Encryption algorithm: one-way, strong, slow
+    * Bcrypt, based on Blowfish cipher (it's built in PHP by default)
+  * `password_hash($password, PASSWORD_DEFAULT);` in the function, you pass in the password in plain text and tell php which algorithm you want to use. The second argument is a constant which goes with whatever the recommended default password is for PHP. It returns an encrypted string
+    * Either `PASSWORD_DEFAULT` or `PASSWORD_BCRYPT` points to the same algorithm for now, but in the future it might change to something else. 
+    * You can specify how many times the bcrypt cycles: `password_hash($password, PASSWORD_BVRYPT, ['cost' => 10];`. It will make it a litter bit slower and more complex. 10 is usually a good value and you don't need to change it.
+  * `password_verify($password, $hash_password);` can verify the attempted password. And it takes into account some meta information that gets passed in like which algorithm is used, etc. It returns `true` or `false`.
